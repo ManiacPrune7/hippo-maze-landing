@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Hippo Maze — Challenge</title>
+<meta property="og:title" content="Hippo Maze — Challenge" />
+<meta property="og:description" content="Someone sent you a puzzle challenge. Open in Hippo Maze to play." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129434;</text></svg>" />
+<style>
+  :root {
+    --bg-1: #3b2a14;
+    --bg-2: #1e1508;
+    --paper: #f5e8cc;
+    --paper-edge: #d4c297;
+    --ink-dark: #2a1c0a;
+    --ink-mid: #5c4218;
+    --accent: #8b5a2b;
+    --accent-hi: #c68642;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(circle at 50% 20%, var(--bg-1), var(--bg-2));
+    color: var(--ink-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  main {
+    background: var(--paper);
+    border: 3px solid var(--paper-edge);
+    border-radius: 24px;
+    box-shadow: 0 24px 48px rgba(0,0,0,.4);
+    padding: 40px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+  }
+  .emoji { font-size: 72px; line-height: 1; margin-bottom: 12px; }
+  h1 { font-size: 28px; margin: 0 0 8px; color: var(--ink-dark); }
+  p { color: var(--ink-mid); font-size: 16px; line-height: 1.4; margin: 8px 0; }
+  .challenge-badge {
+    background: var(--accent);
+    color: #fff1d6;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 16px 0;
+  }
+  .challenge-badge strong { display: block; }
+  .button {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0;
+    background: var(--accent);
+    color: #fff1d6;
+    border: none;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .button:hover { background: var(--accent-hi); }
+  .stores {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .stores a {
+    flex: 1;
+    padding: 14px;
+    background: var(--ink-dark);
+    color: #fff1d6;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .stores a:hover { background: #000; }
+  .small {
+    font-size: 13px;
+    color: #8a7a5a;
+    margin-top: 16px;
+  }
+  details {
+    margin-top: 20px;
+    text-align: left;
+    font-size: 12px;
+    color: #8a7a5a;
+  }
+  details summary { cursor: pointer; user-select: none; }
+  details code {
+    display: block;
+    padding: 8px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    word-break: break-all;
+    margin-top: 8px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px;
+  }
+  .qr-wrap {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 12px;
+  }
+  .qr-wrap img { display: block; }
+  #desktop-view { display: none; }
+  @media (min-width: 768px) {
+    #mobile-view { display: none; }
+    #desktop-view { display: block; }
+  }
+</style>
+<script src="qr.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="emoji">&#129434;</div>
+  <h1 id="title">You were challenged!</h1>
+  <p id="subtitle">Open this puzzle in <strong>Hippo Maze</strong> and try to beat the score.</p>
+  <div class="challenge-badge" id="challenge-info">Parsing challenge&hellip;</div>
+
+  <div id="mobile-view">
+    <a id="open-app" class="button" href="#">Open in Hippo Maze</a>
+    <p class="small">No app yet? Install below, then tap this link again.</p>
+    <div class="stores">
+      <a id="ios-link" href="#">App Store</a>
+      <a id="android-link" href="#">Play Store</a>
+    </div>
+  </div>
+
+  <div id="desktop-view">
+    <p>Scan this QR on your phone to open the challenge in the app.</p>
+    <div class="qr-wrap"><div id="qr-target"></div></div>
+    <p class="small">Don&rsquo;t have the app? Grab it from the App Store or Play Store first.</p>
+    <div class="stores">
+      <a id="ios-link-d" href="#">App Store</a>
+      <a id="android-link-d" href="#">Play Store</a>
+    </div>
+  </div>
+
+  <details>
+    <summary>Raw challenge data</summary>
+    <code id="raw-code">(none)</code>
+  </details>
+</main>
+
+<script>
+/* Landing logic — no external deps. Safely sets text via textContent/DOM APIs. */
+(function () {
+  "use strict";
+
+  var APP_STORE_URL  = "https://apps.apple.com/app/hippo-maze";
+  var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.hippomaze.game";
+
+  function qs(id) { return document.getElementById(id); }
+
+  function getChallengePayload() {
+    try {
+      var url = new URL(window.location.href);
+      var p = url.searchParams.get("c");
+      if (p) return p;
+      var m = url.pathname.match(/\/c\/(.+)$/);
+      if (m) return decodeURIComponent(m[1]);
+    } catch (e) {}
+    return "";
+  }
+
+  function b64UrlToBytes(str) {
+    var b64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var raw = atob(b64);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    return bytes;
+  }
+
+  async function tryDecode(payload) {
+    if (!payload) return null;
+    if (payload.indexOf("HM1-") === 0) return { c: payload };
+    if (typeof DecompressionStream === "undefined") return null;
+    try {
+      var bytes = b64UrlToBytes(payload);
+      var ds = new DecompressionStream("gzip");
+      var stream = new Response(bytes).body.pipeThrough(ds);
+      var text = await new Response(stream).text();
+      return JSON.parse(text);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function renderChallenge(info) {
+    var badge = qs("challenge-info");
+    var sub   = qs("subtitle");
+    if (!info) { badge.textContent = "Custom puzzle"; return; }
+    var parts = [];
+    if (info.n) parts.push(String(info.n));
+    if (info.s != null) parts.push("Beat " + info.s + " pts");
+    badge.textContent = parts.length ? parts.join(" \u00B7 ") : "Custom puzzle";
+    if (info.n) {
+      // Rebuild subtitle safely with DOM API (no innerHTML).
+      sub.textContent = "";
+      var strong1 = document.createElement("strong");
+      strong1.textContent = String(info.n);
+      sub.appendChild(strong1);
+      sub.appendChild(document.createTextNode(" sent you a puzzle. Open in "));
+      var strong2 = document.createElement("strong");
+      strong2.textContent = "Hippo Maze";
+      sub.appendChild(strong2);
+      sub.appendChild(document.createTextNode(" and try to beat them."));
+    }
+  }
+
+  function renderQR(url) {
+    var wrap = qs("qr-target");
+    if (!wrap) return;
+    // Local QR library (qr.js) — no external API, no CORS/rate-limit risk.
+    if (typeof window.HippoQR !== "undefined") {
+      window.HippoQR.render(wrap, url, { size: 220, pad: 10 });
+    } else {
+      // qr.js was deferred — wait one tick.
+      setTimeout(function () { renderQR(url); }, 50);
+    }
+  }
+
+  function setHref(id, url) {
+    var el = qs(id); if (el) el.setAttribute("href", url);
+  }
+
+  function wireLinks(payload) {
+    setHref("ios-link", APP_STORE_URL);
+    setHref("ios-link-d", APP_STORE_URL);
+    setHref("android-link", PLAY_STORE_URL);
+    setHref("android-link-d", PLAY_STORE_URL);
+    var deep = "hippomaze://challenge?c=" + encodeURIComponent(payload);
+    setHref("open-app", deep);
+    qs("raw-code").textContent = payload || "(no payload)";
+    renderQR(window.location.href);
+
+    // Attempt auto-open on mobile after buttons render so user still sees controls.
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && payload) {
+      setTimeout(function () { window.location.href = deep; }, 300);
+    }
+  }
+
+  var payload = getChallengePayload();
+  wireLinks(payload);
+  tryDecode(payload).then(renderChallenge);
+})();
+</script>
+</body>
+</html>

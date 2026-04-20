@@ -1,0 +1,3 @@
+# Cloudflare Pages / Netlify redirects — SPA-style routing.
+# Any path under /c/ serves index.html so the JS can parse the payload.
+/c/*   /index.html   200

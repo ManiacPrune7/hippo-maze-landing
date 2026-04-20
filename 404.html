@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="refresh" content="0; url=/" />
+<title>Hippo Maze</title>
+</head>
+<body>
+<script>
+// GitHub Pages fallback: redirect any 404 under /c/* back to /?c=<payload>
+(function () {
+  var m = window.location.pathname.match(/\/c\/(.+)$/);
+  if (m) {
+    window.location.replace(window.location.origin + "/?c=" + encodeURIComponent(decodeURIComponent(m[1])));
+    return;
+  }
+  window.location.replace("/");
+})();
+</script>
+</body>
+</html>
