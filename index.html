@@ -7,7 +7,7 @@
 <meta property="og:title" content="Hippo Maze — Challenge" />
 <meta property="og:description" content="Someone sent you a puzzle challenge. Open in Hippo Maze to play." />
 <meta property="og:type" content="website" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129434;</text></svg>" />
+<link rel="icon" type="image/png" href="favicon.png" />
 <style>
   :root {
     --bg-1: #3b2a14;
@@ -41,7 +41,7 @@
     width: 100%;
     text-align: center;
   }
-  .emoji { font-size: 72px; line-height: 1; margin-bottom: 12px; }
+  .logo { width: 100%; max-width: 360px; height: auto; display: block; margin: 0 auto 12px; }
   h1 { font-size: 28px; margin: 0 0 8px; color: var(--ink-dark); }
   p { color: var(--ink-mid); font-size: 16px; line-height: 1.4; margin: 8px 0; }
   .challenge-badge {
@@ -127,7 +127,7 @@
 </head>
 <body>
 <main>
-  <div class="emoji">&#129434;</div>
+  <img class="logo" src="logo.png" alt="Hippo Maze" />
   <h1 id="title">You were challenged!</h1>
   <p id="subtitle">Open this puzzle in <strong>Hippo Maze</strong> and try to beat the score.</p>
   <div class="challenge-badge" id="challenge-info">Parsing challenge&hellip;</div>
